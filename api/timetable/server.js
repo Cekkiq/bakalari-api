@@ -6,16 +6,13 @@ const app = express();
 const port = 3000;
 
 app.set('view engine', 'ejs');
-app.use(express.static('public')); // Umožní přístup k veřejným souborům (CSS, JS)
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const BASE_URL = "https://zschlumecnc.bakalari.cz/api";
+const BASE_URL = "https://tvoje skola.bakalari.cz/api";
 
-// Uživatelské údaje pro získání tokenu
-const USERNAME = "Grigo28581";
-const PASSWORD = "4HBNekXU";
+const USERNAME = "";
+const PASSWORD = "";
 
-// Funkce pro získání API tokenu
 async function getToken() {
   const API_BODY = `client_id=ANDR&grant_type=password&username=${encodeURIComponent(USERNAME)}&password=${encodeURIComponent(PASSWORD)}`;
   try {
@@ -29,8 +26,6 @@ async function getToken() {
     throw error;
   }
 }
-
-// Funkce pro získání dat rozvrhu
 async function fetchTimetable(token, type = 'permanent') {
   const endpoint = type === 'actual' ? 'actual' : 'permanent';
   try {
@@ -44,31 +39,27 @@ async function fetchTimetable(token, type = 'permanent') {
   }
 }
 
-// API Endpoint pro získání permanentního rozvrhu
 app.get('/api/timetable/permanent', async (req, res) => {
   try {
-    const token = await getToken();  // Získáme token pro autorizaci
-    const timetable = await fetchTimetable(token, 'permanent');  // Získáme permanentní rozvrh
-    const transformedTimetable = transformTimetable(timetable);  // Transformujeme data
-    res.json(transformedTimetable);  // Vrátíme data jako JSON
+    const token = await getToken();
+    const timetable = await fetchTimetable(token, 'permanent');
+    const transformedTimetable = transformTimetable(timetable);
+    res.json(transformedTimetable);
   } catch (error) {
     res.status(500).json({ error: 'Chyba při získávání permanentního rozvrhu' });
   }
 });
 
-// API Endpoint pro získání aktuálního rozvrhu
 app.get('/api/timetable/actual', async (req, res) => {
   try {
-    const token = await getToken();  // Získáme token pro autorizaci
-    const timetable = await fetchTimetable(token, 'actual');  // Získáme aktuální rozvrh
-    const transformedTimetable = transformTimetable(timetable);  // Transformujeme data
-    res.json(transformedTimetable);  // Vrátíme data jako JSON
+    const token = await getToken();
+    const timetable = await fetchTimetable(token, 'actual');
+    const transformedTimetable = transformTimetable(timetable);
+    res.json(transformedTimetable);
   } catch (error) {
     res.status(500).json({ error: 'Chyba při získávání aktuálního rozvrhu' });
   }
 });
-
-// Funkce pro transformaci dat rozvrhu (formátování)
 function transformTimetable(data) {
   return data.Days.map((day) => ({
     dayOfWeek: `Den ${day.DayOfWeek}`,
@@ -84,13 +75,6 @@ function transformTimetable(data) {
     })),
   }));
 }
-
-// Hlavní stránka (API dokumentace)
-app.get('/', (req, res) => {
-  res.render('index', { error: null });
-});
-
-// Server spuštěn
 app.listen(port, () => {
   console.log(`Server běží na http://localhost:${port}`);
 });
